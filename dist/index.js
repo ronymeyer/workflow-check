@@ -9680,8 +9680,6 @@ function run() {
             const first = result.data.workflow_runs.find(e => typeof e !== 'undefined');
             status = (_a = first === null || first === void 0 ? void 0 : first.status) !== null && _a !== void 0 ? _a : null;
             conclusion = (_b = first === null || first === void 0 ? void 0 : first.conclusion) !== null && _b !== void 0 ? _b : null;
-            core.info(`status loop: ${status}`);
-            core.info(`conclusion loop: ${conclusion}`);
             // conclusion is null when run is in progress
             if (status !== null) {
                 core.info(`status: ${status}`);
