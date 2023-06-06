@@ -1,0 +1,34 @@
+name: Workflow Check
+description: Validates other workflows on given runners
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  token:
+    description: 'GITHUB_TOKEN'
+    required: true
+  workflow:
+    description: 'The name of workflow'
+    required: true
+  repo:
+    description: 'The repo that contains workflow'
+    required: false
+  branch:
+    description: 'The branch to validate'
+    required: false
+    default: main
+  event:
+    description: 'The event to validate'
+    required: false
+  wait:
+    description: 'Wait until workflow completed'
+    required: false
+    default: false
+outputs:
+  status:
+    description: 'Workflow status'
+  conclusion:
+    description: 'Workflow conclusion'
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

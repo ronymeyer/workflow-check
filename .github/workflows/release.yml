@@ -1,0 +1,45 @@
+name: 'release-version'
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: "Increment Type (major, minor, patch)"
+        required: true
+        default: "patch"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install Deps
+        run: npm install
+
+      - name: Build
+        run: npm run build && git add .
+
+      - name: Check CI
+        id: check-ci
+        uses: ronymeyer/workflow-status@main
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: test.yml
+          event: push
+
+      - name: Release
+        if: ${{ steps.check-ci.outputs.conclusion == 'success' }}
+        run: |
+          git config --global user.name 'Rony'
+          git config --global user.email 'workflow-status.github.com@spot-light.ch'
+          npm run release -- --ci --increment ${{ github.event.inputs.increment }}
