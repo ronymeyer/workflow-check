@@ -38,7 +38,6 @@ jobs:
         if: ${{ steps.check-success.outputs.conclusion == 'success' && steps.check-failed.outputs.conclusion == 'failure'}}
         run: exit 0
       - name: Validate Result (Shell)
-        if: 1==0
         run: |
           if [ '${{ steps.check-success.outputs.conclusion }}' == 'success' -a '${{ steps.check-failed.outputs.conclusion }}' == 'failure' ]; then
             exit 0
