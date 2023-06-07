@@ -31,7 +31,7 @@ jobs:
 
       - name: Check CI
         id: check-ci
-        uses: ronymeyer/workflow-check@main
+        uses: ronymeyer/workflow-check@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           workflow: test.yml
