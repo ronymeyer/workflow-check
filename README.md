@@ -10,7 +10,7 @@ A Github Action that checks another workflow's latest check
 
 * `token` - Your Github API token. You can just use `${{ secrets.GITHUB_TOKEN }}`
 * `workflow` - The **filename** of the workflow to check
-* `branch` - Branch name to check. Defaults to `main`
+* `branch` - Branch name to check. Defaults to `master`
 * `repo` - (Optional) Repository to check
 * `event` - (Optional) Event to validate, see [Events that trigger workflows](https://docs.github.com/en/actions/reference/events-that-trigger-workflows) to get the full list
 

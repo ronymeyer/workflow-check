@@ -16,7 +16,7 @@ inputs:
   branch:
     description: 'The branch to validate'
     required: false
-    default: main
+    default: master
   event:
     description: 'The event to validate'
     required: false
