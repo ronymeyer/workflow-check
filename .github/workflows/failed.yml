@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - .github/workflows/failed.yml
+  workflow_dispatch:
 
 jobs:
   failed:

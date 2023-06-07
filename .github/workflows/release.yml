@@ -6,6 +6,7 @@ on:
         description: "Increment Type (major, minor, patch)"
         required: true
         default: "patch"
+  workflow_dispatch:
 
 jobs:
   release:
