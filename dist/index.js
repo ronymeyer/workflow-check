@@ -9619,7 +9619,11 @@ exports.WarningPrefix = '[warning]';
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -9656,13 +9660,13 @@ function run() {
             const token = core.getInput('token', { required: true });
             const workflow = core.getInput('workflow', { required: true });
             const branch = core.getInput('branch');
-            const event = utils_1.getOptionalInput('event');
+            const event = (0, utils_1.getOptionalInput)('event');
             const wait = core.getBooleanInput('wait');
-            let fullRepo = utils_1.getOptionalInput('repo');
+            let fullRepo = (0, utils_1.getOptionalInput)('repo');
             if (fullRepo === undefined) {
-                fullRepo = utils_1.getRepository();
+                fullRepo = (0, utils_1.getRepository)();
             }
-            const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
+            const [owner, repo] = (0, utils_1.getOwnerAndRepo)(fullRepo);
             core.info(`Checking result of ${workflow} from ${fullRepo}:${branch}`);
             const octokit = github.getOctokit(token);
             let status = null;
@@ -9676,7 +9680,7 @@ function run() {
                 event,
                 per_page: 1
             });
-            core.info(`Received status code ${result.status}, number or results: ${result.data.total_count}`);
+            core.info(`Received status code: ${result.status}, number or results: ${result.data.total_count}`);
             const first = result.data.workflow_runs.find(e => typeof e !== 'undefined');
             status = (_a = first === null || first === void 0 ? void 0 : first.status) !== null && _a !== void 0 ? _a : null;
             conclusion = (_b = first === null || first === void 0 ? void 0 : first.conclusion) !== null && _b !== void 0 ? _b : null;
@@ -9688,7 +9692,7 @@ function run() {
                 core.setOutput('conclusion', conclusion);
             }
             else {
-                utils_1.logWarning('Workflow run is missing');
+                (0, utils_1.logWarning)('Workflow run is missing');
             }
         }
         catch (ex) {
@@ -9708,7 +9712,11 @@ run();
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
