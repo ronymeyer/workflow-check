@@ -72,7 +72,7 @@ function run() {
                         })];
                 case 1:
                     result = _f.sent();
-                    core.info("Received status code " + result.status + ", number or results: " + result.data.total_count);
+                    core.info("Received status code: " + result.status + ", number or results: " + result.data.total_count);
                     first = result.data.workflow_runs.find(function (e) { return typeof e !== 'undefined'; });
                     status = (_b = (_a = first) === null || _a === void 0 ? void 0 : _a.status, (_b !== null && _b !== void 0 ? _b : null));
                     conclusion = (_d = (_c = first) === null || _c === void 0 ? void 0 : _c.conclusion, (_d !== null && _d !== void 0 ? _d : null));

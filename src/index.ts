@@ -41,7 +41,7 @@ async function run(): Promise<void> {
         per_page: 1
     });
 
-    core.info(`Received status code ${result.status}, number or results: ${result.data.total_count}`);
+    core.info(`Received status code: ${result.status}, number or results: ${result.data.total_count}`);
 
     const first = result.data.workflow_runs.find(e => typeof e !== 'undefined')
 
