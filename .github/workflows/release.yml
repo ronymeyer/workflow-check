@@ -5,8 +5,12 @@ on:
       increment:
         description: "Increment Type (major, minor, patch)"
         required: true
-        default: "patch"
-
+        default: 'patch'
+        type: 'choice'
+        options:
+          - 'major'
+          - 'minor'
+          - 'patch'
 jobs:
   release:
     runs-on: ubuntu-latest
