@@ -9,6 +9,7 @@ on:
       - "**.ts"
       - "**.json"
       - ".github/workflows/test.yml"
+  workflow_dispatch:
 
 jobs:
   build:
