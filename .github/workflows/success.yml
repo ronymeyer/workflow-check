@@ -1,7 +1,7 @@
 name: 'always-success'
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - .github/workflows/success.yml
   workflow_dispatch:
