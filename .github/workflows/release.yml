@@ -32,7 +32,7 @@ jobs:
 
       - name: Check CI
         id: check-ci
-        uses: ronymeyer/workflow-status@main
+        uses: ronymeyer/workflow-check@main
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           workflow: test.yml
@@ -42,5 +42,5 @@ jobs:
         if: ${{ steps.check-ci.outputs.conclusion == 'success' }}
         run: |
           git config --global user.name 'Rony'
-          git config --global user.email 'workflow-status.github.com@spot-light.ch'
+          git config --global user.email 'workflow-check.github.com@spot-light.ch'
           npm run release -- --ci --increment ${{ github.event.inputs.increment }}
