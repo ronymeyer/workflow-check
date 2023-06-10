@@ -40,58 +40,77 @@ var core = require("@actions/core");
 var github = require("@actions/github");
 var utils_1 = require("./utils");
 function run() {
-    var _a, _b, _c, _d;
     return __awaiter(this, void 0, Promise, function () {
-        var token, workflow, branch, event, wait, fullRepo, _e, owner, repo, octokit, status, conclusion, result, first, ex_1;
-        return __generator(this, function (_f) {
-            switch (_f.label) {
+        var token, currentRunId_1, runnerLabel, fullRepo, _a, owner, repo, octokit, foundRunningJob, status, conclusion, statusToCheck, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _b, _c, job, ex_1;
+        return __generator(this, function (_d) {
+            switch (_d.label) {
                 case 0:
-                    _f.trys.push([0, 2, , 3]);
+                    _d.trys.push([0, 6, , 7]);
                     token = core.getInput('token', { required: true });
-                    workflow = core.getInput('workflow', { required: true });
-                    branch = core.getInput('branch');
-                    event = utils_1.getOptionalInput('event');
-                    wait = core.getBooleanInput('wait');
+                    currentRunId_1 = core.getInput('currentRunId', { required: true });
+                    runnerLabel = core.getInput('runnerLabel', { required: true });
                     fullRepo = utils_1.getOptionalInput('repo');
                     if (fullRepo === undefined) {
                         fullRepo = utils_1.getRepository();
                     }
-                    _e = utils_1.getOwnerAndRepo(fullRepo), owner = _e[0], repo = _e[1];
-                    core.info("Checking result of " + workflow + " from " + fullRepo + ":" + branch);
+                    _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
+                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId_1);
                     octokit = github.getOctokit(token);
+                    foundRunningJob = false;
                     status = null;
                     conclusion = null;
+                    statusToCheck = "in_progress";
                     return [4 /*yield*/, octokit.rest.actions
-                            .listWorkflowRuns({
+                            .listWorkflowRunsForRepo({
                             owner: owner,
                             repo: repo,
-                            workflow_id: workflow,
-                            branch: branch,
-                            event: event,
-                            per_page: 1
+                            status: statusToCheck
                         })];
                 case 1:
-                    result = _f.sent();
-                    core.info("Received status code: " + result.status + ", number or results: " + result.data.total_count);
-                    first = result.data.workflow_runs.find(function (e) { return typeof e !== 'undefined'; });
-                    status = (_b = (_a = first) === null || _a === void 0 ? void 0 : _a.status, (_b !== null && _b !== void 0 ? _b : null));
-                    conclusion = (_d = (_c = first) === null || _c === void 0 ? void 0 : _c.conclusion, (_d !== null && _d !== void 0 ? _d : null));
-                    // conclusion is null when run is in progress
-                    if (status !== null) {
-                        core.info("status: " + status);
-                        core.info("conclusion: " + conclusion);
-                        core.setOutput('status', status);
-                        core.setOutput('conclusion', conclusion);
-                    }
-                    else {
-                        utils_1.logWarning('Workflow run is missing');
-                    }
-                    return [3 /*break*/, 3];
+                    listWorkflowRunsForRepoResult = _d.sent();
+                    core.info("Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
+                    workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId_1); });
+                    workFlowRunsMapped = workFlowRunsFiltered.map(function (x) { return ({
+                        run_id: x.id,
+                        name: x.name
+                    }); });
+                    _i = 0, workFlowRunsMapped_1 = workFlowRunsMapped;
+                    _d.label = 2;
                 case 2:
-                    ex_1 = _f.sent();
+                    if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
+                    workFlowRun = workFlowRunsMapped_1[_i];
+                    return [4 /*yield*/, octokit.rest.actions
+                            .listJobsForWorkflowRun({
+                            owner: owner,
+                            repo: repo,
+                            run_id: workFlowRun.run_id
+                        })];
+                case 3:
+                    listJobsForWorkflowRunResult = _d.sent();
+                    core.info("Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
+                    for (_b = 0, _c = listJobsForWorkflowRunResult.data.jobs; _b < _c.length; _b++) {
+                        job = _c[_b];
+                        if (job.labels.includes(runnerLabel)) {
+                            foundRunningJob = true;
+                            break;
+                        }
+                    }
+                    if (foundRunningJob)
+                        return [3 /*break*/, 5];
+                    _d.label = 4;
+                case 4:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 5:
+                    // conclusion is null when run is in progress
+                    core.info("foundRunningJob: " + foundRunningJob);
+                    core.setOutput('foundRunningJob', foundRunningJob);
+                    return [3 /*break*/, 7];
+                case 6:
+                    ex_1 = _d.sent();
                     core.setFailed("Failed with error: " + ex_1);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });

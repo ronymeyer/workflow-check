@@ -9619,11 +9619,7 @@ exports.WarningPrefix = '[warning]';
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -9654,46 +9650,54 @@ const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const utils_1 = __nccwpck_require__(1314);
 function run() {
-    var _a, _b;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const token = core.getInput('token', { required: true });
-            const workflow = core.getInput('workflow', { required: true });
-            const branch = core.getInput('branch');
-            const event = (0, utils_1.getOptionalInput)('event');
-            const wait = core.getBooleanInput('wait');
-            let fullRepo = (0, utils_1.getOptionalInput)('repo');
+            const currentRunId = core.getInput('currentRunId', { required: true });
+            const runnerLabel = core.getInput('runnerLabel', { required: true });
+            let fullRepo = utils_1.getOptionalInput('repo');
             if (fullRepo === undefined) {
-                fullRepo = (0, utils_1.getRepository)();
+                fullRepo = utils_1.getRepository();
             }
-            const [owner, repo] = (0, utils_1.getOwnerAndRepo)(fullRepo);
-            core.info(`Checking result of ${workflow} from ${fullRepo}:${branch}`);
+            const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
+            core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
             const octokit = github.getOctokit(token);
+            let foundRunningJob = false;
             let status = null;
             let conclusion = null;
-            const result = yield octokit.rest.actions
-                .listWorkflowRuns({
+            const statusToCheck = "in_progress";
+            const listWorkflowRunsForRepoResult = yield octokit.rest.actions
+                .listWorkflowRunsForRepo({
                 owner,
                 repo,
-                workflow_id: workflow,
-                branch,
-                event,
-                per_page: 1
+                status: statusToCheck
             });
-            core.info(`Received status code: ${result.status}, number or results: ${result.data.total_count}`);
-            const first = result.data.workflow_runs.find(e => typeof e !== 'undefined');
-            status = (_a = first === null || first === void 0 ? void 0 : first.status) !== null && _a !== void 0 ? _a : null;
-            conclusion = (_b = first === null || first === void 0 ? void 0 : first.conclusion) !== null && _b !== void 0 ? _b : null;
+            core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
+            let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
+            const workFlowRunsMapped = workFlowRunsFiltered.map((x) => ({
+                run_id: x.id,
+                name: x.name
+            }));
+            for (const workFlowRun of workFlowRunsMapped) {
+                const listJobsForWorkflowRunResult = yield octokit.rest.actions
+                    .listJobsForWorkflowRun({
+                    owner,
+                    repo,
+                    run_id: workFlowRun.run_id
+                });
+                core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+                for (const job of listJobsForWorkflowRunResult.data.jobs) {
+                    if (job.labels.includes(runnerLabel)) {
+                        foundRunningJob = true;
+                        break;
+                    }
+                }
+                if (foundRunningJob)
+                    break;
+            }
             // conclusion is null when run is in progress
-            if (status !== null) {
-                core.info(`status: ${status}`);
-                core.info(`conclusion: ${conclusion}`);
-                core.setOutput('status', status);
-                core.setOutput('conclusion', conclusion);
-            }
-            else {
-                (0, utils_1.logWarning)('Workflow run is missing');
-            }
+            core.info(`foundRunningJob: ${foundRunningJob}`);
+            core.setOutput('foundRunningJob', foundRunningJob);
         }
         catch (ex) {
             core.setFailed(`Failed with error: ${ex}`);
@@ -9712,11 +9716,7 @@ run();
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];

@@ -13,10 +13,8 @@ import {
 async function run(): Promise<void> {
   try {
     const token = core.getInput('token', {required: true});
-    const workflow = core.getInput('workflow', {required: true});
-    const branch = core.getInput('branch');
-    const event = getOptionalInput('event');
-    const wait = core.getBooleanInput('wait');
+    const currentRunId = core.getInput('currentRunId', {required: true});
+    const runnerLabel = core.getInput('runnerLabel', {required: true});
     let fullRepo = getOptionalInput('repo');
     if (fullRepo === undefined) {
       fullRepo = getRepository();
@@ -24,40 +22,55 @@ async function run(): Promise<void> {
 
     const [owner, repo] = getOwnerAndRepo(fullRepo);
 
-    core.info(`Checking result of ${workflow} from ${fullRepo}:${branch}`);
+    core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
 
     const octokit = github.getOctokit(token);
 
+    let foundRunningJob = false;
     let status: string | null = null;
     let conclusion: string | null = null;
 
-    const result = await octokit.rest.actions
-      .listWorkflowRuns({
-        owner,
-        repo,
-        workflow_id: workflow,
-        branch,
-        event,
-        per_page: 1
+    const statusToCheck = "in_progress";
+    const listWorkflowRunsForRepoResult = await octokit.rest.actions
+    .listWorkflowRunsForRepo({
+      owner,
+      repo,
+      status: statusToCheck
     });
 
-    core.info(`Received status code: ${result.status}, number or results: ${result.data.total_count}`);
+    core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
 
-    const first = result.data.workflow_runs.find(e => typeof e !== 'undefined')
+    let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f)=> f.id != Number(currentRunId));
 
-    status = first?.status ?? null;
-    conclusion = first?.conclusion ?? null;
+    const workFlowRunsMapped = workFlowRunsFiltered.map((x) => ({
+      run_id: x.id,
+      name: x.name
+    }));
+
+    for (const workFlowRun of workFlowRunsMapped) {
+      const listJobsForWorkflowRunResult = await octokit.rest.actions
+      .listJobsForWorkflowRun({
+        owner,
+        repo,
+        run_id: workFlowRun.run_id
+      });
+
+      core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+
+      for (const job of listJobsForWorkflowRunResult.data.jobs){
+        if (job.labels.includes(runnerLabel)){
+          foundRunningJob = true;
+          break;
+        }
+      }
+      if (foundRunningJob)
+        break;
+    }
 
     // conclusion is null when run is in progress
-    if (status !== null) {
-      core.info(`status: ${status}`);
-      core.info(`conclusion: ${conclusion}`);
+      core.info(`foundRunningJob: ${foundRunningJob}`);
 
-      core.setOutput('status', status);
-      core.setOutput('conclusion', conclusion);
-    } else {
-      logWarning('Workflow run is missing');
-    }
+      core.setOutput('foundRunningJob', foundRunningJob);
   } catch (ex) {
     core.setFailed(`Failed with error: ${ex}`);
   }
