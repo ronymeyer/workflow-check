@@ -1,5 +1,5 @@
 name: Workflow Check
-description: Validates other workflows on given runners
+description: Check if there are any other pending or in progress workflows for given runner lable
 branding:
   icon: check-circle
   color: blue
@@ -7,28 +7,15 @@ inputs:
   token:
     description: 'GITHUB_TOKEN'
     required: true
-  workflow:
-    description: 'The name of workflow'
+  currentRunId:
+    description: 'The run id of the current runner, required to exclude from results, pass in ${{ github.run_id }}'
     required: true
-  repo:
-    description: 'The repo that contains workflow'
-    required: false
-  branch:
-    description: 'The branch to validate'
-    required: false
-    default: master
-  event:
-    description: 'The event to validate'
-    required: false
-  wait:
-    description: 'Wait until workflow completed'
-    required: false
-    default: false
+  runnerLabel:
+    description: 'Lable to be checked for other running workflows'
+    required: true
 outputs:
-  status:
-    description: 'Workflow status'
-  conclusion:
-    description: 'Workflow conclusion'
+  foundRunningJob:
+    description: 'true if other running jobs have been found, false otherwise'
 runs:
   using: 'node16'
   main: 'dist/index.js'

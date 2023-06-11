@@ -1,4 +1,4 @@
-name: 'release-version'
+name: 'Release new version'
 on:
   workflow_dispatch:
     inputs:
@@ -38,11 +38,11 @@ jobs:
         uses: ronymeyer/workflow-check@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: test.yml
-          event: push
+          currentRunId: 0  # we give an invalid run id which results in finding this current run as running, therefore reporting running job found.
+          runnerLabel: "ubuntu-latest"
 
       - name: Release
-        if: ${{ steps.check-ci.outputs.conclusion == 'success' }}
+        if: ${{ steps.check-ci.outputs.foundRunningJob == 'true' }}
         run: |
           git config --global user.name 'Rony'
           git config --global user.email 'workflow-check.github.com@spot-light.ch'

@@ -2,28 +2,29 @@
 
 [![build-test](https://github.com/ronymeyer/workflow-check/actions/workflows/test.yml/badge.svg)](https://github.com/ronymeyer/workflow-check/actions/workflows/test.yml)
 
-A Github Action that checks another workflow's latest check
+A Github Action that checks if there are any other pending or in progress workflows for given runner lable
 
 ## Usage
 
 ### Inputs
 
 * `token` - Your Github API token. You can just use `${{ secrets.GITHUB_TOKEN }}`
-* `workflow` - The **filename** of the workflow to check
-* `branch` - Branch name to check. Defaults to `master`
-* `repo` - (Optional) Repository to check
-* `event` - (Optional) Event to validate, see [Events that trigger workflows](https://docs.github.com/en/actions/reference/events-that-trigger-workflows) to get the full list
+* `currentRunId` - The run id of the current runner, required to exclude from results. Use `${{ github.run_id }}`
+* `runnerLabel` - Lable to be checked for other running workflows
 
 ### Outputs
 
-* `status` & `conclusion` - Result of Github API. For a list of the possible `status` and `conclusion` options, see [Create a check run](https://docs.github.com/rest/reference/checks#create-a-check-run)
-* Please note that `conclusion` may be null when the workflow is currently running
+* `foundRunningJob` - `true` if other running jobs have been found, `false` otherwise. In GitHub Actions the out put has to be compared to string. In bash booleans can be used. See [Create a check run](https://docs.github.com/rest/reference/checks#create-a-check-run)
 
 ## Example Workflow
 
 ```yaml
 name: 'release-version'
 on:
+  pull_request:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
@@ -38,15 +39,14 @@ jobs:
         
       - name: Check CI
       	id: check-ci
-      	uses: ronymeyer/workflow-check@v0.0.1
+      	uses: ronymeyer/workflow-check@v0.0.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: ci.yml
-          event: push
-          branch: development
+          currentRunId: ${{ github.run_id }}
+          runnerLabel: "ubuntu-latest"
           
       - name: Release
-      	if: ${{ steps.check-ci.outputs.conclusion == 'success' }}
+      	if: ${{ steps.check-ci.outputs.foundRunningJob == 'true' }}
         run: # Release scripts
 ```
 
