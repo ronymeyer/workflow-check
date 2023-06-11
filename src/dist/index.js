@@ -39,27 +39,14 @@ exports.__esModule = true;
 var core = require("@actions/core");
 var github = require("@actions/github");
 var utils_1 = require("./utils");
-function run() {
+function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId_1, runnerLabel, fullRepo, _a, owner, repo, octokit, foundRunningJob, status, conclusion, statusToCheck, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _b, _c, job, ex_1;
-        return __generator(this, function (_d) {
-            switch (_d.label) {
+        var foundRunningJob, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
                 case 0:
-                    _d.trys.push([0, 6, , 7]);
-                    token = core.getInput('token', { required: true });
-                    currentRunId_1 = core.getInput('currentRunId', { required: true });
-                    runnerLabel = core.getInput('runnerLabel', { required: true });
-                    fullRepo = utils_1.getOptionalInput('repo');
-                    if (fullRepo === undefined) {
-                        fullRepo = utils_1.getRepository();
-                    }
-                    _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
-                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId_1);
-                    octokit = github.getOctokit(token);
                     foundRunningJob = false;
-                    status = null;
-                    conclusion = null;
-                    statusToCheck = "in_progress";
+                    octokit = github.getOctokit(token);
                     return [4 /*yield*/, octokit.rest.actions
                             .listWorkflowRunsForRepo({
                             owner: owner,
@@ -67,15 +54,15 @@ function run() {
                             status: statusToCheck
                         })];
                 case 1:
-                    listWorkflowRunsForRepoResult = _d.sent();
+                    listWorkflowRunsForRepoResult = _c.sent();
                     core.info("Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
-                    workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId_1); });
+                    workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId); });
                     workFlowRunsMapped = workFlowRunsFiltered.map(function (x) { return ({
                         run_id: x.id,
                         name: x.name
                     }); });
                     _i = 0, workFlowRunsMapped_1 = workFlowRunsMapped;
-                    _d.label = 2;
+                    _c.label = 2;
                 case 2:
                     if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
                     workFlowRun = workFlowRunsMapped_1[_i];
@@ -86,10 +73,10 @@ function run() {
                             run_id: workFlowRun.run_id
                         })];
                 case 3:
-                    listJobsForWorkflowRunResult = _d.sent();
+                    listJobsForWorkflowRunResult = _c.sent();
                     core.info("Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
-                    for (_b = 0, _c = listJobsForWorkflowRunResult.data.jobs; _b < _c.length; _b++) {
-                        job = _c[_b];
+                    for (_a = 0, _b = listJobsForWorkflowRunResult.data.jobs; _a < _b.length; _a++) {
+                        job = _b[_a];
                         if (job.labels.includes(runnerLabel)) {
                             foundRunningJob = true;
                             break;
@@ -97,20 +84,48 @@ function run() {
                     }
                     if (foundRunningJob)
                         return [3 /*break*/, 5];
-                    _d.label = 4;
+                    _c.label = 4;
                 case 4:
                     _i++;
                     return [3 /*break*/, 2];
                 case 5:
                     // conclusion is null when run is in progress
+                    core.info("foundRunningJob for status " + statusToCheck + ": " + foundRunningJob);
+                    return [2 /*return*/, foundRunningJob];
+            }
+        });
+    });
+}
+function run() {
+    return __awaiter(this, void 0, Promise, function () {
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, octokit, statusToCheck, foundRunningJob, ex_1;
+        return __generator(this, function (_b) {
+            switch (_b.label) {
+                case 0:
+                    _b.trys.push([0, 2, , 3]);
+                    token = core.getInput('token', { required: true });
+                    currentRunId = core.getInput('currentRunId', { required: true });
+                    runnerLabel = core.getInput('runnerLabel', { required: true });
+                    fullRepo = utils_1.getOptionalInput('repo');
+                    if (fullRepo === undefined) {
+                        fullRepo = utils_1.getRepository();
+                    }
+                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
+                    _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
+                    octokit = github.getOctokit(token);
+                    statusToCheck = "in_progress";
+                    return [4 /*yield*/, checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
+                case 1:
+                    foundRunningJob = _b.sent();
+                    // conclusion is null when run is in progress
                     core.info("foundRunningJob: " + foundRunningJob);
                     core.setOutput('foundRunningJob', foundRunningJob);
-                    return [3 /*break*/, 7];
-                case 6:
-                    ex_1 = _d.sent();
+                    return [3 /*break*/, 3];
+                case 2:
+                    ex_1 = _b.sent();
                     core.setFailed("Failed with error: " + ex_1);
-                    return [3 /*break*/, 7];
-                case 7: return [2 /*return*/];
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
             }
         });
     });

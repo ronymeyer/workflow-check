@@ -9649,6 +9649,44 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const github = __importStar(__nccwpck_require__(5438));
 const utils_1 = __nccwpck_require__(1314);
+function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let foundRunningJob = false;
+        const octokit = github.getOctokit(token);
+        const listWorkflowRunsForRepoResult = yield octokit.rest.actions
+            .listWorkflowRunsForRepo({
+            owner,
+            repo,
+            status: statusToCheck
+        });
+        core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
+        let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
+        const workFlowRunsMapped = workFlowRunsFiltered.map((x) => ({
+            run_id: x.id,
+            name: x.name
+        }));
+        for (const workFlowRun of workFlowRunsMapped) {
+            const listJobsForWorkflowRunResult = yield octokit.rest.actions
+                .listJobsForWorkflowRun({
+                owner,
+                repo,
+                run_id: workFlowRun.run_id
+            });
+            core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+            for (const job of listJobsForWorkflowRunResult.data.jobs) {
+                if (job.labels.includes(runnerLabel)) {
+                    foundRunningJob = true;
+                    break;
+                }
+            }
+            if (foundRunningJob)
+                break;
+        }
+        // conclusion is null when run is in progress
+        core.info(`foundRunningJob for status ${statusToCheck}: ${foundRunningJob}`);
+        return foundRunningJob;
+    });
+}
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -9659,42 +9697,11 @@ function run() {
             if (fullRepo === undefined) {
                 fullRepo = utils_1.getRepository();
             }
-            const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
             core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
+            const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
             const octokit = github.getOctokit(token);
-            let foundRunningJob = false;
-            let status = null;
-            let conclusion = null;
             const statusToCheck = "in_progress";
-            const listWorkflowRunsForRepoResult = yield octokit.rest.actions
-                .listWorkflowRunsForRepo({
-                owner,
-                repo,
-                status: statusToCheck
-            });
-            core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
-            let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
-            const workFlowRunsMapped = workFlowRunsFiltered.map((x) => ({
-                run_id: x.id,
-                name: x.name
-            }));
-            for (const workFlowRun of workFlowRunsMapped) {
-                const listJobsForWorkflowRunResult = yield octokit.rest.actions
-                    .listJobsForWorkflowRun({
-                    owner,
-                    repo,
-                    run_id: workFlowRun.run_id
-                });
-                core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
-                for (const job of listJobsForWorkflowRunResult.data.jobs) {
-                    if (job.labels.includes(runnerLabel)) {
-                        foundRunningJob = true;
-                        break;
-                    }
-                }
-                if (foundRunningJob)
-                    break;
-            }
+            var foundRunningJob = yield checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
             // conclusion is null when run is in progress
             core.info(`foundRunningJob: ${foundRunningJob}`);
             core.setOutput('foundRunningJob', foundRunningJob);
