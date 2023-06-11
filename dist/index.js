@@ -9619,7 +9619,11 @@ exports.WarningPrefix = '[warning]';
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -9693,12 +9697,12 @@ function run() {
             const token = core.getInput('token', { required: true });
             const currentRunId = core.getInput('currentRunId', { required: true });
             const runnerLabel = core.getInput('runnerLabel', { required: true });
-            let fullRepo = utils_1.getOptionalInput('repo');
+            let fullRepo = (0, utils_1.getOptionalInput)('repo');
             if (fullRepo === undefined) {
-                fullRepo = utils_1.getRepository();
+                fullRepo = (0, utils_1.getRepository)();
             }
             core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
-            const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
+            const [owner, repo] = (0, utils_1.getOwnerAndRepo)(fullRepo);
             const octokit = github.getOctokit(token);
             var foundRunningJob = false;
             // loop through all statuses to check if we have any other running jobs
@@ -9729,7 +9733,11 @@ run();
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
