@@ -8,7 +8,7 @@ inputs:
     description: 'GITHUB_TOKEN'
     required: true
   currentRunId:
-    description: 'The run id of the current runner, required to exclude from results, pass in ${{ github.run_id }}'
+    description: 'The run id of the current runner, required to exclude from results, pass in github.run_id'
     required: true
   runnerLabel:
     description: 'Lable to be checked for other running workflows'
