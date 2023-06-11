@@ -43,7 +43,7 @@ jobs:
       - name: Validate Result (Shell)
         # Example how we can test the output with bash. It's possible to either check for true (boolean) or 'true' (string)
         run: |
-          if [ '${{ steps.check-success.outputs.foundRunningJob }}' == true -a '${{ steps.check-failed.outputs.foundRunningJob }}' == false -a '${{ steps.check-success.outputs.foundRunningJob }}' == 'true' -a '${{ steps.check-failed.outputs.foundRunningJob }}' == 'false']; then
+          if [ '${{ steps.check-success.outputs.foundRunningJob }}' == true -a '${{ steps.check-failed.outputs.foundRunningJob }}' == false -a '${{ steps.check-success.outputs.foundRunningJob }}' == 'true' -a '${{ steps.check-failed.outputs.foundRunningJob }}' == 'false' ]; then
             exit 0
           else
             exit 1
