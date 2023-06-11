@@ -37,11 +37,13 @@ jobs:
           currentRunId: ${{ github.run_id }} # we give this run id as current run id, usually there shouldn't be any other workfolows running in this repo
           runnerLabel: "ubuntu-latest"
       - name: Validate Result (If Statement)
-        if: ${{ steps.check-success.outputs.foundRunningJob == true && steps.check-failed.outputs.foundRunningJob == false}}
+        # Example how to check the output with an if statement in GitHub actions. Note that we can't check for a boolean (true) but have to check for string ('true')
+        if: ${{ steps.check-success.outputs.foundRunningJob == 'true' && steps.check-failed.outputs.foundRunningJob == 'false'}}
         run: exit 0
       - name: Validate Result (Shell)
+        # Example how we can test the output with bash. It's possible to either check for true (boolean) or 'true' (string)
         run: |
-          if [ '${{ steps.check-success.outputs.foundRunningJob }}' == true -a '${{ steps.check-failed.outputs.foundRunningJob }}' == false ]; then
+          if [ '${{ steps.check-success.outputs.foundRunningJob }}' == true -a '${{ steps.check-failed.outputs.foundRunningJob }}' == false -a '${{ steps.check-success.outputs.foundRunningJob }}' == 'true' -a '${{ steps.check-failed.outputs.foundRunningJob }}' == 'false']; then
             exit 0
           else
             exit 1
