@@ -98,11 +98,11 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, octokit, statusToCheck, foundRunningJob, ex_1;
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, octokit, foundRunningJob, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 2, , 3]);
+                    _b.trys.push([0, 5, , 6]);
                     token = core.getInput('token', { required: true });
                     currentRunId = core.getInput('currentRunId', { required: true });
                     runnerLabel = core.getInput('runnerLabel', { required: true });
@@ -113,19 +113,32 @@ function run() {
                     core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
                     octokit = github.getOctokit(token);
-                    statusToCheck = "in_progress";
-                    return [4 /*yield*/, checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
+                    foundRunningJob = false;
+                    statusesToCheck = ["requested", "queued", "in_progress", "waiting"];
+                    _i = 0, statusesToCheck_1 = statusesToCheck;
+                    _b.label = 1;
                 case 1:
+                    if (!(_i < statusesToCheck_1.length)) return [3 /*break*/, 4];
+                    statusToCheck = statusesToCheck_1[_i];
+                    return [4 /*yield*/, checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
+                case 2:
                     foundRunningJob = _b.sent();
+                    if (foundRunningJob)
+                        return [3 /*break*/, 4];
+                    _b.label = 3;
+                case 3:
+                    _i++;
+                    return [3 /*break*/, 1];
+                case 4:
                     // conclusion is null when run is in progress
                     core.info("foundRunningJob: " + foundRunningJob);
                     core.setOutput('foundRunningJob', foundRunningJob);
-                    return [3 /*break*/, 3];
-                case 2:
+                    return [3 /*break*/, 6];
+                case 5:
                     ex_1 = _b.sent();
                     core.setFailed("Failed with error: " + ex_1);
-                    return [3 /*break*/, 3];
-                case 3: return [2 /*return*/];
+                    return [3 /*break*/, 6];
+                case 6: return [2 /*return*/];
             }
         });
     });

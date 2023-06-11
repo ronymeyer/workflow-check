@@ -9700,8 +9700,14 @@ function run() {
             core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
             const [owner, repo] = utils_1.getOwnerAndRepo(fullRepo);
             const octokit = github.getOctokit(token);
-            const statusToCheck = "in_progress";
-            var foundRunningJob = yield checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+            var foundRunningJob = false;
+            // loop through all statuses to check if we have any other running jobs
+            var statusesToCheck = ["requested", "queued", "in_progress", "waiting"];
+            for (const statusToCheck of statusesToCheck) {
+                foundRunningJob = yield checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+                if (foundRunningJob)
+                    break;
+            }
             // conclusion is null when run is in progress
             core.info(`foundRunningJob: ${foundRunningJob}`);
             core.setOutput('foundRunningJob', foundRunningJob);

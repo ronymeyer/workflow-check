@@ -72,14 +72,20 @@ async function run(): Promise<void> {
     const [owner, repo] = getOwnerAndRepo(fullRepo);
     const octokit = github.getOctokit(token);
 
-    const statusToCheck = "in_progress";
-    var foundRunningJob = await checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+    var foundRunningJob = false
 
+    // loop through all statuses to check if we have any other running jobs
+    var statusesToCheck:components["parameters"]["workflow-run-status"][] = ["requested", "queued", "in_progress", "waiting"];
+    for (const statusToCheck of statusesToCheck) {
+      foundRunningJob = await checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+      if (foundRunningJob)
+        break;
+    }
 
     // conclusion is null when run is in progress
-      core.info(`foundRunningJob: ${foundRunningJob}`);
+    core.info(`foundRunningJob: ${foundRunningJob}`);
+    core.setOutput('foundRunningJob', foundRunningJob);
 
-      core.setOutput('foundRunningJob', foundRunningJob);
   } catch (ex) {
     core.setFailed(`Failed with error: ${ex}`);
   }
