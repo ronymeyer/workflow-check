@@ -28,18 +28,20 @@ jobs:
         id: "check-success"
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: "success.yml"
+          currentRunId: ${{ github.run_id }}
+          runnerLabel: "ubuntu-latest"
       - uses: ./
         id: "check-failed"
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: "failed.yml"
+          currentRunId: 0  # we give an invalid run id which should result in an error
+          runnerLabel: "ubuntu-latest"
       - name: Validate Result (If Statement)
-        if: ${{ steps.check-success.outputs.conclusion == 'success' && steps.check-failed.outputs.conclusion == 'failure'}}
+        if: ${{ steps.check-success.outputs.foundRunningJob == true && steps.check-failed.outputs.foundRunningJob == false}}
         run: exit 0
       - name: Validate Result (Shell)
         run: |
-          if [ '${{ steps.check-success.outputs.conclusion }}' == 'success' -a '${{ steps.check-failed.outputs.conclusion }}' == 'failure' ]; then
+          if [ '${{ steps.check-success.outputs.foundRunningJob }}' == true -a '${{ steps.check-failed.outputs.foundRunningJob }}' == false ]; then
             exit 0
           else
             exit 1
