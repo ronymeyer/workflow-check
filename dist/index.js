@@ -9716,11 +9716,11 @@ const utils_1 = __nccwpck_require__(1314);
 function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, void 0, function* () {
         let foundRunningJob = false;
-        const octo = new rest_1.Octokit();
-        octo.actions.listWorkflowRunsForRepo();
-        const listWorkflowRunsForRepoResult = yield octo.rest.actions.listWorkflowRunsForRepo({
-            owner,
-            repo,
+        const octokit = new rest_1.Octokit();
+        octokit.actions.listWorkflowRunsForRepo();
+        const listWorkflowRunsForRepoResult = yield octokit.rest.actions.listWorkflowRunsForRepo({
+            owner: owner,
+            repo: repo,
             status: statusToCheck
         });
         core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
@@ -9730,7 +9730,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
             name: x.name
         }));
         for (const workFlowRun of workFlowRunsMapped) {
-            const listJobsForWorkflowRunResult = yield octo.rest.actions
+            const listJobsForWorkflowRunResult = yield octokit.rest.actions
                 .listJobsForWorkflowRun({
                 owner,
                 repo,
@@ -9761,8 +9761,9 @@ function run() {
             if (fullRepo === undefined) {
                 fullRepo = (0, utils_1.getRepository)();
             }
-            core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
             const [owner, repo] = (0, utils_1.getOwnerAndRepo)(fullRepo);
+            core.info(`Full Repot ${fullRepo}, owner ${owner}, repo ${repo}`);
+            core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
             var foundRunningJob = false;
             // loop through all statuses to check if we have any other running jobs
             var statusesToCheck = ["requested", "queued", "in_progress", "pending"];

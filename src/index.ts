@@ -10,7 +10,11 @@ import {
 async function checkWorkflow(token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
 
-  const octokit = new Octokit();
+  const octokit = new Octokit({ baseUrl: 'https://api.github.com' });
+  const { createActionAuth } = require("@octokit/auth-action");
+  const auth = createActionAuth();
+  const authentication = await auth();
+
   octokit.actions.listWorkflowRunsForRepo()
   const listWorkflowRunsForRepoResult = await octokit.rest.actions.listWorkflowRunsForRepo({
     owner: owner,

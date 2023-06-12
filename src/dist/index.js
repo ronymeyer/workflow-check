@@ -41,19 +41,24 @@ var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
 function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var foundRunningJob, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        var foundRunningJob, octokit, createActionAuth, auth, authentication, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
-                    octokit = new rest_1.Octokit();
+                    octokit = new rest_1.Octokit({ baseUrl: 'https://api.github.com' });
+                    createActionAuth = require("@octokit/auth-action").createActionAuth;
+                    auth = createActionAuth();
+                    return [4 /*yield*/, auth()];
+                case 1:
+                    authentication = _c.sent();
                     octokit.actions.listWorkflowRunsForRepo();
                     return [4 /*yield*/, octokit.rest.actions.listWorkflowRunsForRepo({
                             owner: owner,
                             repo: repo,
                             status: statusToCheck
                         })];
-                case 1:
+                case 2:
                     listWorkflowRunsForRepoResult = _c.sent();
                     core.info("Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
                     workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId); });
@@ -62,9 +67,9 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                         name: x.name
                     }); });
                     _i = 0, workFlowRunsMapped_1 = workFlowRunsMapped;
-                    _c.label = 2;
-                case 2:
-                    if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
+                    _c.label = 3;
+                case 3:
+                    if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 6];
                     workFlowRun = workFlowRunsMapped_1[_i];
                     return [4 /*yield*/, octokit.rest.actions
                             .listJobsForWorkflowRun({
@@ -72,7 +77,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                             repo: repo,
                             run_id: workFlowRun.run_id
                         })];
-                case 3:
+                case 4:
                     listJobsForWorkflowRunResult = _c.sent();
                     core.info("Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
                     for (_a = 0, _b = listJobsForWorkflowRunResult.data.jobs; _a < _b.length; _a++) {
@@ -83,12 +88,12 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                         }
                     }
                     if (foundRunningJob)
-                        return [3 /*break*/, 5];
-                    _c.label = 4;
-                case 4:
-                    _i++;
-                    return [3 /*break*/, 2];
+                        return [3 /*break*/, 6];
+                    _c.label = 5;
                 case 5:
+                    _i++;
+                    return [3 /*break*/, 3];
+                case 6:
                     // conclusion is null when run is in progress
                     core.info("foundRunningJob for status " + statusToCheck + ": " + foundRunningJob);
                     return [2 /*return*/, foundRunningJob];
