@@ -37,7 +37,7 @@ jobs:
         id: check-ci
         uses: ronymeyer/workflow-check@master
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          #token: ${{ secrets.GITHUB_TOKEN }}
           currentRunId: 0  # we give an invalid run id which results in finding this current run as running, therefore reporting running job found.
           runnerLabel: "ubuntu-latest"
 
