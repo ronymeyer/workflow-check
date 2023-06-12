@@ -67,7 +67,7 @@ async function checkWorkflow(octokit: Octokit, owner: string, repo: string, stat
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('token', { required: true });
+    //const token = core.getInput('GITHUB_TOKEN', { required: true });
     const currentRunId = core.getInput('currentRunId', { required: true });
     const runnerLabel = core.getInput('runnerLabel', { required: true });
     let fullRepo = getOptionalInput('repo');

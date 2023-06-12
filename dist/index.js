@@ -9910,7 +9910,7 @@ function checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runner
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const token = core.getInput('token', { required: true });
+            //const token = core.getInput('GITHUB_TOKEN', { required: true });
             const currentRunId = core.getInput('currentRunId', { required: true });
             const runnerLabel = core.getInput('runnerLabel', { required: true });
             let fullRepo = (0, utils_1.getOptionalInput)('repo');

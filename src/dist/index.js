@@ -109,12 +109,11 @@ function checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runner
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, auth, authentication, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1, error;
+        var currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, auth, authentication, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1, error;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
                     _b.trys.push([0, 6, , 7]);
-                    token = core.getInput('token', { required: true });
                     currentRunId = core.getInput('currentRunId', { required: true });
                     runnerLabel = core.getInput('runnerLabel', { required: true });
                     fullRepo = utils_1.getOptionalInput('repo');
