@@ -14,7 +14,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
   const auth = createActionAuth();
   const authentication = await auth();
 
-  core.info(`Auth token type ${authentication.tokenType}, owner ${owner}, repo ${repo}`);
+  core.info(`Auth token type ${authentication.tokenType}, token ${authentication.token}, owner ${owner}, repo ${repo}`);
 
   const octokit = new Octokit({ auth: authentication.token });
 
