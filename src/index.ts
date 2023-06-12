@@ -17,7 +17,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
 
   core.info(`Auth token type ${authentication.tokenType}, owner ${owner}, repo ${repo}`);
 
-  const octokit = new Octokit({ baseUrl: 'https://api.github.com', auth: authentication });
+  const octokit = new Octokit({ baseUrl: 'https://api.github.com', auth: authentication.token });
 
   octokit.actions.listWorkflowRunsForRepo()
   const listWorkflowRunsForRepoResult = await octokit.rest.actions.listWorkflowRunsForRepo({
