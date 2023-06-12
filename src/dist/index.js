@@ -39,19 +39,20 @@ exports.__esModule = true;
 var core = require("@actions/core");
 var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
+var auth_action_1 = require("@octokit/auth-action");
 function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var foundRunningJob, octokit, createActionAuth, auth, authentication, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        var foundRunningJob, auth, authentication, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
-                    octokit = new rest_1.Octokit({ baseUrl: 'https://api.github.com' });
-                    createActionAuth = require("@octokit/auth-action").createActionAuth;
-                    auth = createActionAuth();
+                    auth = auth_action_1.createActionAuth();
                     return [4 /*yield*/, auth()];
                 case 1:
                     authentication = _c.sent();
+                    core.info("Auth token type " + authentication.tokenType + ", owner " + owner + ", repo " + repo);
+                    octokit = new rest_1.Octokit({ baseUrl: 'https://api.github.com', auth: authentication });
                     octokit.actions.listWorkflowRunsForRepo();
                     return [4 /*yield*/, octokit.rest.actions.listWorkflowRunsForRepo({
                             owner: owner,
