@@ -120,7 +120,6 @@ function run() {
                         fullRepo = utils_1.getRepository();
                     }
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
-                    core.info("Full Repot " + fullRepo + ", owner " + owner + ", repo " + repo);
                     core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     foundRunningJob = false;
                     octokit = new rest_1.Octokit();

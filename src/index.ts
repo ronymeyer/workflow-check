@@ -74,10 +74,7 @@ async function run(): Promise<void> {
     }
     const [owner, repo] = getOwnerAndRepo(fullRepo);
 
-    core.info(`Full Repot ${fullRepo}, owner ${owner}, repo ${repo}`);
-
     core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
-
 
     var foundRunningJob = false
 
