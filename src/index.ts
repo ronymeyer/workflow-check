@@ -39,7 +39,13 @@ async function checkWorkflow(octokit: Octokit, owner: string, repo: string, stat
   }));
 
   for (const workFlowRun of workFlowRunsMapped) {
-    core.info(`Checking for jobs with status ${statusToCheck} and runner lable ${runnerLabel}.`);
+    core.info(`Checking for jobs with status ${statusToCheck} and runner label ${runnerLabel}.`);
+
+    if (statusToCheck == "pending") {
+      core.info(`There are pending jobs, for pending jobs there is no run_id yet, so we can't get the label.`);
+      foundRunningJob = true;
+      break;
+    }
     const listJobsForWorkflowRunResult = await octokit.rest.actions
       .listJobsForWorkflowRun({
         owner,
@@ -76,7 +82,7 @@ async function run(): Promise<void> {
     }
     const [owner, repo] = getOwnerAndRepo(fullRepo);
 
-    core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
+    core.info(`Checking if there are any running runners with label ${runnerLabel} which are different to run id ${currentRunId}`);
 
     var foundRunningJob = false
 

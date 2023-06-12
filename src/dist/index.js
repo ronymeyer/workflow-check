@@ -76,7 +76,12 @@ function checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runner
                 case 2:
                     if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
                     workFlowRun = workFlowRunsMapped_1[_i];
-                    core.info("Checking for jobs with status " + statusToCheck + " and runner lable " + runnerLabel + ".");
+                    core.info("Checking for jobs with status " + statusToCheck + " and runner label " + runnerLabel + ".");
+                    if (statusToCheck == "pending") {
+                        core.info("There are pending jobs, for pending jobs there is no run_id yet, so we can't get the label.");
+                        foundRunningJob = true;
+                        return [3 /*break*/, 5];
+                    }
                     return [4 /*yield*/, octokit.rest.actions
                             .listJobsForWorkflowRun({
                             owner: owner,
@@ -121,7 +126,7 @@ function run() {
                         fullRepo = utils_1.getRepository();
                     }
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
-                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
+                    core.info("Checking if there are any running runners with label " + runnerLabel + " which are different to run id " + currentRunId);
                     foundRunningJob = false;
                     auth = auth_action_1.createActionAuth();
                     return [4 /*yield*/, auth()];
