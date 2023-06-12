@@ -107,7 +107,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1, error;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -145,12 +145,24 @@ function run() {
                     return [3 /*break*/, 6];
                 case 5:
                     ex_1 = _b.sent();
-                    core.setFailed("Failed with error: " + ex_1);
+                    error = ensureError(ex_1);
+                    core.setFailed("Failed with error: " + error.message + ".");
                     return [3 /*break*/, 6];
                 case 6: return [2 /*return*/];
             }
         });
     });
+}
+function ensureError(value) {
+    if (value instanceof Error)
+        return value;
+    var stringified = '[Unable to stringify the thrown value]';
+    try {
+        stringified = JSON.stringify(value);
+    }
+    catch (_a) { }
+    var error = new Error("This value was thrown as is, not through an Error: " + stringified);
+    return error;
 }
 run();
 
