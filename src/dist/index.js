@@ -52,7 +52,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                 case 1:
                     authentication = _c.sent();
                     core.info("Auth token type " + authentication.tokenType + ", owner " + owner + ", repo " + repo);
-                    octokit = new rest_1.Octokit({ baseUrl: 'https://api.github.com', auth: authentication.token });
+                    octokit = new rest_1.Octokit({ auth: authentication.token });
                     octokit.actions.listWorkflowRunsForRepo();
                     return [4 /*yield*/, octokit.rest.actions.listWorkflowRunsForRepo({
                             owner: owner,
