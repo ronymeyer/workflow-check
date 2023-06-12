@@ -54,7 +54,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                     core.info("Auth token type " + authentication.tokenType + ", owner " + owner + ", repo " + repo);
                     octokit = new rest_1.Octokit({ auth: authentication.token });
                     octokit.actions.listWorkflowRunsForRepo();
-                    return [4 /*yield*/, octokit.rest.actions.listWorkflowRunsForRepo({
+                    return [4 /*yield*/, octokit.actions.listWorkflowRunsForRepo({
                             owner: owner,
                             repo: repo,
                             status: statusToCheck

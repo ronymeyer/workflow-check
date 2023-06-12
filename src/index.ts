@@ -19,7 +19,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
   const octokit = new Octokit({ auth: authentication.token });
 
   octokit.actions.listWorkflowRunsForRepo()
-  const listWorkflowRunsForRepoResult = await octokit.rest.actions.listWorkflowRunsForRepo({
+  const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
     owner: owner,
     repo: repo,
     status: statusToCheck
