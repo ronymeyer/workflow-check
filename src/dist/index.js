@@ -51,16 +51,23 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                     return [4 /*yield*/, auth()];
                 case 1:
                     authentication = _c.sent();
-                    core.info("Auth token type " + authentication.tokenType + ", token " + authentication.token + ", owner " + owner + ", repo " + repo);
+                    core.info("Auth token type " + authentication.tokenType + ", token " + authentication.token.length + ", owner " + owner + ", repo " + repo);
                     octokit = new rest_1.Octokit({ auth: authentication.token });
-                    octokit.actions.listWorkflowRunsForRepo();
-                    return [4 /*yield*/, octokit.actions.listWorkflowRunsForRepo({
+                    return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
                             owner: owner,
                             repo: repo,
                             status: statusToCheck
                         })];
                 case 2:
                     listWorkflowRunsForRepoResult = _c.sent();
+                    /*
+                    octokit.actions.listWorkflowRunsForRepo()
+                    const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
+                      owner: owner,
+                      repo: repo,
+                      status: statusToCheck
+                    });
+                    */
                     core.info("Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
                     workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId); });
                     workFlowRunsMapped = workFlowRunsFiltered.map(function (x) { return ({

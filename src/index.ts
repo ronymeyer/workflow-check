@@ -14,17 +14,23 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
   const auth = createActionAuth();
   const authentication = await auth();
 
-  core.info(`Auth token type ${authentication.tokenType}, token ${authentication.token}, owner ${owner}, repo ${repo}`);
+  core.info(`Auth token type ${authentication.tokenType}, token ${authentication.token.length}, owner ${owner}, repo ${repo}`);
 
   const octokit = new Octokit({ auth: authentication.token });
 
+  const listWorkflowRunsForRepoResult = await octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
+    owner: owner,
+    repo: repo,
+    status: statusToCheck
+  });
+  /*
   octokit.actions.listWorkflowRunsForRepo()
   const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
     owner: owner,
     repo: repo,
     status: statusToCheck
   });
-
+  */
   core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
 
   let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
