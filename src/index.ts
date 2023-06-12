@@ -80,7 +80,10 @@ async function run(): Promise<void> {
 
     var foundRunningJob = false
 
-    const octokit = new Octokit();
+    const auth = createActionAuth();
+    const authentication = await auth();
+    core.info(`Auth token type ${authentication.tokenType}, token ${authentication.token.length}, owner ${owner}, repo ${repo}`);
+    const octokit = new Octokit({ auth: authentication.token });
 
     // loop through all statuses to check if we have any other running jobs
     var statusesToCheck: components["parameters"]["workflow-run-status"][] = ["pending", "requested", "queued", "in_progress"];

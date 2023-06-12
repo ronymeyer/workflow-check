@@ -39,6 +39,7 @@ exports.__esModule = true;
 var core = require("@actions/core");
 var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
+var auth_action_1 = require("@octokit/auth-action");
 function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
         var foundRunningJob, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
@@ -108,11 +109,11 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1, error;
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, auth, authentication, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1, error;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
-                    _b.trys.push([0, 5, , 6]);
+                    _b.trys.push([0, 6, , 7]);
                     token = core.getInput('token', { required: true });
                     currentRunId = core.getInput('currentRunId', { required: true });
                     runnerLabel = core.getInput('runnerLabel', { required: true });
@@ -123,33 +124,38 @@ function run() {
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
                     core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     foundRunningJob = false;
-                    octokit = new rest_1.Octokit();
+                    auth = auth_action_1.createActionAuth();
+                    return [4 /*yield*/, auth()];
+                case 1:
+                    authentication = _b.sent();
+                    core.info("Auth token type " + authentication.tokenType + ", token " + authentication.token.length + ", owner " + owner + ", repo " + repo);
+                    octokit = new rest_1.Octokit({ auth: authentication.token });
                     statusesToCheck = ["pending", "requested", "queued", "in_progress"];
                     _i = 0, statusesToCheck_1 = statusesToCheck;
-                    _b.label = 1;
-                case 1:
-                    if (!(_i < statusesToCheck_1.length)) return [3 /*break*/, 4];
+                    _b.label = 2;
+                case 2:
+                    if (!(_i < statusesToCheck_1.length)) return [3 /*break*/, 5];
                     statusToCheck = statusesToCheck_1[_i];
                     return [4 /*yield*/, checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
-                case 2:
+                case 3:
                     foundRunningJob = _b.sent();
                     if (foundRunningJob)
-                        return [3 /*break*/, 4];
-                    _b.label = 3;
-                case 3:
-                    _i++;
-                    return [3 /*break*/, 1];
+                        return [3 /*break*/, 5];
+                    _b.label = 4;
                 case 4:
+                    _i++;
+                    return [3 /*break*/, 2];
+                case 5:
                     // conclusion is null when run is in progress
                     core.info("foundRunningJob: " + foundRunningJob);
                     core.setOutput('foundRunningJob', foundRunningJob);
-                    return [3 /*break*/, 6];
-                case 5:
+                    return [3 /*break*/, 7];
+                case 6:
                     ex_1 = _b.sent();
                     error = ensureError(ex_1);
                     core.setFailed("Failed with error: " + error.message + ".");
-                    return [3 /*break*/, 6];
-                case 6: return [2 /*return*/];
+                    return [3 /*break*/, 7];
+                case 7: return [2 /*return*/];
             }
         });
     });
