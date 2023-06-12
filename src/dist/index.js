@@ -46,6 +46,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
+                    core.info("Start checking for status " + statusToCheck + ".");
                     return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
                             owner: owner,
                             repo: repo,
@@ -62,7 +63,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
                       status: statusToCheck
                     });
                     */
-                    core.info("Check Runs: Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
+                    core.info("Check Runs: Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count + ".");
                     workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId); });
                     workFlowRunsMapped = workFlowRunsFiltered.map(function (x) { return ({
                         run_id: x.id,
@@ -73,6 +74,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
                 case 2:
                     if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
                     workFlowRun = workFlowRunsMapped_1[_i];
+                    core.info("Checking for jobs with status " + statusToCheck + " and runner lable " + runnerLabel + ".");
                     return [4 /*yield*/, octokit.rest.actions
                             .listJobsForWorkflowRun({
                             owner: owner,
@@ -81,7 +83,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
                         })];
                 case 3:
                     listJobsForWorkflowRunResult = _c.sent();
-                    core.info("Check Workflow Run " + workFlowRun.run_id + " with name " + workFlowRun.name + ": Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
+                    core.info("Check Workflow Run " + workFlowRun.run_id + " with name '" + workFlowRun.name + "'. Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count + ".");
                     for (_a = 0, _b = listJobsForWorkflowRunResult.data.jobs; _a < _b.length; _a++) {
                         job = _b[_a];
                         if (job.labels.includes(runnerLabel)) {
@@ -97,7 +99,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
                     return [3 /*break*/, 2];
                 case 5:
                     // conclusion is null when run is in progress
-                    core.info("foundRunningJob for status " + statusToCheck + ": " + foundRunningJob);
+                    core.info("End checking for status " + statusToCheck + ". foundRunningJob: " + foundRunningJob);
                     return [2 /*return*/, foundRunningJob];
             }
         });

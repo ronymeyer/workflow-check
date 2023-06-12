@@ -11,6 +11,8 @@ import { createActionAuth } from "@octokit/auth-action";
 async function checkWorkflow(octokit: Octokit, token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
 
+  core.info(`Start checking for status ${statusToCheck}.`);
+
   const listWorkflowRunsForRepoResult = await octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
     owner: owner,
     repo: repo,
@@ -25,7 +27,7 @@ async function checkWorkflow(octokit: Octokit, token: string, owner: string, rep
     status: statusToCheck
   });
   */
-  core.info(`Check Runs: Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
+  core.info(`Check Runs: Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}.`);
 
   let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
 
@@ -35,6 +37,7 @@ async function checkWorkflow(octokit: Octokit, token: string, owner: string, rep
   }));
 
   for (const workFlowRun of workFlowRunsMapped) {
+    core.info(`Checking for jobs with status ${statusToCheck} and runner lable ${runnerLabel}.`);
     const listJobsForWorkflowRunResult = await octokit.rest.actions
       .listJobsForWorkflowRun({
         owner,
@@ -42,7 +45,7 @@ async function checkWorkflow(octokit: Octokit, token: string, owner: string, rep
         run_id: workFlowRun.run_id
       });
 
-    core.info(`Check Workflow Run ${workFlowRun.run_id} with name ${workFlowRun.name}: Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+    core.info(`Check Workflow Run ${workFlowRun.run_id} with name '${workFlowRun.name}'. Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}.`);
 
     for (const job of listJobsForWorkflowRunResult.data.jobs) {
       if (job.labels.includes(runnerLabel)) {
@@ -55,7 +58,7 @@ async function checkWorkflow(octokit: Octokit, token: string, owner: string, rep
   }
 
   // conclusion is null when run is in progress
-  core.info(`foundRunningJob for status ${statusToCheck}: ${foundRunningJob}`);
+  core.info(`End checking for status ${statusToCheck}. foundRunningJob: ${foundRunningJob}`);
 
   return foundRunningJob;
 }
