@@ -47,6 +47,7 @@ function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId,
                 case 0:
                     foundRunningJob = false;
                     core.info("Start checking for status " + statusToCheck + ".");
+                    core.info("Using owner " + owner + " and repo " + repo + ".");
                     return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
                             owner: owner,
                             repo: repo,

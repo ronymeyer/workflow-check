@@ -13,6 +13,8 @@ async function checkWorkflow(octokit: Octokit, token: string, owner: string, rep
 
   core.info(`Start checking for status ${statusToCheck}.`);
 
+  core.info(`Using owner ${owner} and repo ${repo}.`);
+
   const listWorkflowRunsForRepoResult = await octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
     owner: owner,
     repo: repo,
