@@ -9713,30 +9713,39 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __importStar(__nccwpck_require__(2186));
 const rest_1 = __nccwpck_require__(5375);
 const utils_1 = __nccwpck_require__(1314);
-function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
+function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, void 0, function* () {
         let foundRunningJob = false;
-        const octokit = new rest_1.Octokit();
-        octokit.actions.listWorkflowRunsForRepo();
-        const listWorkflowRunsForRepoResult = yield octokit.rest.actions.listWorkflowRunsForRepo({
+        core.info(`Start checking for status ${statusToCheck}.`);
+        const listWorkflowRunsForRepoResult = yield octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
             owner: owner,
             repo: repo,
             status: statusToCheck
         });
-        core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
+        /*
+        // this call doesn't work, it looks like owner and repo don't get replaced in the URL
+        octokit.rest.actions.listWorkflowRunsForRepo()
+        const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
+          owner: owner,
+          repo: repo,
+          status: statusToCheck
+        });
+        */
+        core.info(`Check Runs: Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}.`);
         let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
         const workFlowRunsMapped = workFlowRunsFiltered.map((x) => ({
             run_id: x.id,
             name: x.name
         }));
         for (const workFlowRun of workFlowRunsMapped) {
+            core.info(`Checking for jobs with status ${statusToCheck} and runner lable ${runnerLabel}.`);
             const listJobsForWorkflowRunResult = yield octokit.rest.actions
                 .listJobsForWorkflowRun({
                 owner,
                 repo,
                 run_id: workFlowRun.run_id
             });
-            core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+            core.info(`Check Workflow Run ${workFlowRun.run_id} with name '${workFlowRun.name}'. Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}.`);
             for (const job of listJobsForWorkflowRunResult.data.jobs) {
                 if (job.labels.includes(runnerLabel)) {
                     foundRunningJob = true;
@@ -9747,7 +9756,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                 break;
         }
         // conclusion is null when run is in progress
-        core.info(`foundRunningJob for status ${statusToCheck}: ${foundRunningJob}`);
+        core.info(`End checking for status ${statusToCheck}. foundRunningJob: ${foundRunningJob}`);
         return foundRunningJob;
     });
 }
@@ -9762,13 +9771,13 @@ function run() {
                 fullRepo = (0, utils_1.getRepository)();
             }
             const [owner, repo] = (0, utils_1.getOwnerAndRepo)(fullRepo);
-            core.info(`Full Repot ${fullRepo}, owner ${owner}, repo ${repo}`);
             core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
             var foundRunningJob = false;
+            const octokit = new rest_1.Octokit();
             // loop through all statuses to check if we have any other running jobs
-            var statusesToCheck = ["requested", "queued", "in_progress", "pending"];
+            var statusesToCheck = ["pending", "requested", "queued", "in_progress"];
             for (const statusToCheck of statusesToCheck) {
-                foundRunningJob = yield checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+                foundRunningJob = yield checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel);
                 if (foundRunningJob)
                     break;
             }
