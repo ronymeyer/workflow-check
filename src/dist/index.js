@@ -37,18 +37,18 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 exports.__esModule = true;
 var core = require("@actions/core");
-var github = require("@actions/github");
+var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
 function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var foundRunningJob, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        var foundRunningJob, octo, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
-                    octokit = github.getOctokit(token);
-                    return [4 /*yield*/, octokit.rest.actions
-                            .listWorkflowRunsForRepo({
+                    octo = new rest_1.Octokit();
+                    octo.actions.listWorkflowRunsForRepo();
+                    return [4 /*yield*/, octo.rest.actions.listWorkflowRunsForRepo({
                             owner: owner,
                             repo: repo,
                             status: statusToCheck
@@ -66,7 +66,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                 case 2:
                     if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
                     workFlowRun = workFlowRunsMapped_1[_i];
-                    return [4 /*yield*/, octokit.rest.actions
+                    return [4 /*yield*/, octo.rest.actions
                             .listJobsForWorkflowRun({
                             owner: owner,
                             repo: repo,
@@ -98,7 +98,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, octokit, foundRunningJob, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -112,9 +112,8 @@ function run() {
                     }
                     core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
-                    octokit = github.getOctokit(token);
                     foundRunningJob = false;
-                    statusesToCheck = ["requested", "queued", "in_progress", "waiting"];
+                    statusesToCheck = ["requested", "queued", "in_progress", "pending"];
                     _i = 0, statusesToCheck_1 = statusesToCheck;
                     _b.label = 1;
                 case 1:
