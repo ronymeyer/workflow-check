@@ -110,8 +110,9 @@ function run() {
                     if (fullRepo === undefined) {
                         fullRepo = utils_1.getRepository();
                     }
-                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     _a = utils_1.getOwnerAndRepo(fullRepo), owner = _a[0], repo = _a[1];
+                    core.info("Full Repot " + fullRepo + ", owner " + owner + ", repo " + repo);
+                    core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     foundRunningJob = false;
                     statusesToCheck = ["requested", "queued", "in_progress", "pending"];
                     _i = 0, statusesToCheck_1 = statusesToCheck;

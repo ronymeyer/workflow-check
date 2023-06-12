@@ -62,10 +62,12 @@ async function run(): Promise<void> {
     if (fullRepo === undefined) {
       fullRepo = getRepository();
     }
+    const [owner, repo] = getOwnerAndRepo(fullRepo);
+
+    core.info(`Full Repot ${fullRepo}, owner ${owner}, repo ${repo}`);
 
     core.info(`Checking if there are any running runners with lable ${runnerLabel} which are different to run id ${currentRunId}`);
 
-    const [owner, repo] = getOwnerAndRepo(fullRepo);
 
     var foundRunningJob = false
 
