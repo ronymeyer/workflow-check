@@ -9859,7 +9859,7 @@ const core = __importStar(__nccwpck_require__(2186));
 const rest_1 = __nccwpck_require__(5375);
 const utils_1 = __nccwpck_require__(1314);
 const auth_action_1 = __nccwpck_require__(20);
-function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
+function checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, void 0, function* () {
         let foundRunningJob = false;
         core.info(`Start checking for status ${statusToCheck}.`);
@@ -9927,7 +9927,7 @@ function run() {
             // loop through all statuses to check if we have any other running jobs
             var statusesToCheck = ["pending", "requested", "queued", "in_progress"];
             for (const statusToCheck of statusesToCheck) {
-                foundRunningJob = yield checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+                foundRunningJob = yield checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runnerLabel);
                 if (foundRunningJob)
                     break;
             }

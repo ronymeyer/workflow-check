@@ -8,7 +8,7 @@ import {
 } from './utils';
 import { createActionAuth } from "@octokit/auth-action";
 
-async function checkWorkflow(octokit: Octokit, token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
+async function checkWorkflow(octokit: Octokit, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
 
   core.info(`Start checking for status ${statusToCheck}.`);
@@ -88,7 +88,7 @@ async function run(): Promise<void> {
     // loop through all statuses to check if we have any other running jobs
     var statusesToCheck: components["parameters"]["workflow-run-status"][] = ["pending", "requested", "queued", "in_progress"];
     for (const statusToCheck of statusesToCheck) {
-      foundRunningJob = await checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+      foundRunningJob = await checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runnerLabel);
       if (foundRunningJob)
         break;
     }

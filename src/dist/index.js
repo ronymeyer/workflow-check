@@ -40,7 +40,7 @@ var core = require("@actions/core");
 var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
 var auth_action_1 = require("@octokit/auth-action");
-function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
+function checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
         var foundRunningJob, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
@@ -136,7 +136,7 @@ function run() {
                 case 2:
                     if (!(_i < statusesToCheck_1.length)) return [3 /*break*/, 5];
                     statusToCheck = statusesToCheck_1[_i];
-                    return [4 /*yield*/, checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
+                    return [4 /*yield*/, checkWorkflow(octokit, owner, repo, statusToCheck, currentRunId, runnerLabel)];
                 case 3:
                     foundRunningJob = _b.sent();
                     if (foundRunningJob)
