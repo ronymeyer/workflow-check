@@ -41,14 +41,14 @@ var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
 function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var foundRunningJob, octo, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        var foundRunningJob, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
-                    octo = new rest_1.Octokit();
-                    octo.actions.listWorkflowRunsForRepo();
-                    return [4 /*yield*/, octo.rest.actions.listWorkflowRunsForRepo({
+                    octokit = new rest_1.Octokit();
+                    octokit.actions.listWorkflowRunsForRepo();
+                    return [4 /*yield*/, octokit.rest.actions.listWorkflowRunsForRepo({
                             owner: owner,
                             repo: repo,
                             status: statusToCheck
@@ -66,7 +66,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                 case 2:
                     if (!(_i < workFlowRunsMapped_1.length)) return [3 /*break*/, 5];
                     workFlowRun = workFlowRunsMapped_1[_i];
-                    return [4 /*yield*/, octo.rest.actions
+                    return [4 /*yield*/, octokit.rest.actions
                             .listJobsForWorkflowRun({
                             owner: owner,
                             repo: repo,

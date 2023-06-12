@@ -10,11 +10,11 @@ import {
 async function checkWorkflow(token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
 
-  const octo = new Octokit();
-  octo.actions.listWorkflowRunsForRepo()
-  const listWorkflowRunsForRepoResult = await octo.rest.actions.listWorkflowRunsForRepo({
-    owner,
-    repo,
+  const octokit = new Octokit();
+  octokit.actions.listWorkflowRunsForRepo()
+  const listWorkflowRunsForRepoResult = await octokit.rest.actions.listWorkflowRunsForRepo({
+    owner: owner,
+    repo: repo,
     status: statusToCheck
   });
 
@@ -28,7 +28,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
   }));
 
   for (const workFlowRun of workFlowRunsMapped) {
-    const listJobsForWorkflowRunResult = await octo.rest.actions
+    const listJobsForWorkflowRunResult = await octokit.rest.actions
       .listJobsForWorkflowRun({
         owner,
         repo,
