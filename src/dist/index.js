@@ -39,14 +39,13 @@ exports.__esModule = true;
 var core = require("@actions/core");
 var rest_1 = require("@octokit/rest");
 var utils_1 = require("./utils");
-function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
+function checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel) {
     return __awaiter(this, void 0, Promise, function () {
-        var foundRunningJob, octokit, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
+        var foundRunningJob, listWorkflowRunsForRepoResult, workFlowRunsFiltered, workFlowRunsMapped, _i, workFlowRunsMapped_1, workFlowRun, listJobsForWorkflowRunResult, _a, _b, job;
         return __generator(this, function (_c) {
             switch (_c.label) {
                 case 0:
                     foundRunningJob = false;
-                    octokit = new rest_1.Octokit();
                     return [4 /*yield*/, octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
                             owner: owner,
                             repo: repo,
@@ -56,7 +55,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                     listWorkflowRunsForRepoResult = _c.sent();
                     /*
                     // this call doesn't work, it looks like owner and repo don't get replaced in the URL
-                    octokit.actions.listWorkflowRunsForRepo()
+                    octokit.rest.actions.listWorkflowRunsForRepo()
                     const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
                       owner: owner,
                       repo: repo,
@@ -106,7 +105,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
 }
 function run() {
     return __awaiter(this, void 0, Promise, function () {
-        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
+        var token, currentRunId, runnerLabel, fullRepo, _a, owner, repo, foundRunningJob, octokit, statusesToCheck, _i, statusesToCheck_1, statusToCheck, ex_1;
         return __generator(this, function (_b) {
             switch (_b.label) {
                 case 0:
@@ -122,13 +121,14 @@ function run() {
                     core.info("Full Repot " + fullRepo + ", owner " + owner + ", repo " + repo);
                     core.info("Checking if there are any running runners with lable " + runnerLabel + " which are different to run id " + currentRunId);
                     foundRunningJob = false;
+                    octokit = new rest_1.Octokit();
                     statusesToCheck = ["pending", "requested", "queued", "in_progress"];
                     _i = 0, statusesToCheck_1 = statusesToCheck;
                     _b.label = 1;
                 case 1:
                     if (!(_i < statusesToCheck_1.length)) return [3 /*break*/, 4];
                     statusToCheck = statusesToCheck_1[_i];
-                    return [4 /*yield*/, checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
+                    return [4 /*yield*/, checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel)];
                 case 2:
                     foundRunningJob = _b.sent();
                     if (foundRunningJob)

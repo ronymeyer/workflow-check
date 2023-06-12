@@ -8,10 +8,8 @@ import {
 } from './utils';
 import { createActionAuth } from "@octokit/auth-action";
 
-async function checkWorkflow(token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
+async function checkWorkflow(octokit: Octokit, token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
-
-  const octokit = new Octokit();
 
   const listWorkflowRunsForRepoResult = await octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
     owner: owner,
@@ -20,7 +18,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
   });
   /*
   // this call doesn't work, it looks like owner and repo don't get replaced in the URL
-  octokit.actions.listWorkflowRunsForRepo()
+  octokit.rest.actions.listWorkflowRunsForRepo()
   const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
     owner: owner,
     repo: repo,
@@ -80,10 +78,12 @@ async function run(): Promise<void> {
 
     var foundRunningJob = false
 
+    const octokit = new Octokit();
+
     // loop through all statuses to check if we have any other running jobs
     var statusesToCheck: components["parameters"]["workflow-run-status"][] = ["pending", "requested", "queued", "in_progress"];
     for (const statusToCheck of statusesToCheck) {
-      foundRunningJob = await checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLabel);
+      foundRunningJob = await checkWorkflow(octokit, token, owner, repo, statusToCheck, currentRunId, runnerLabel);
       if (foundRunningJob)
         break;
     }
