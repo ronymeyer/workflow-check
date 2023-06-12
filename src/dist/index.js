@@ -55,6 +55,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                 case 1:
                     listWorkflowRunsForRepoResult = _c.sent();
                     /*
+                    // this call doesn't work, it looks like owner and repo don't get replaced in the URL
                     octokit.actions.listWorkflowRunsForRepo()
                     const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
                       owner: owner,
@@ -62,7 +63,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                       status: statusToCheck
                     });
                     */
-                    core.info("Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
+                    core.info("Check Runs: Received status code: " + listWorkflowRunsForRepoResult.status + ", number or results: " + listWorkflowRunsForRepoResult.data.total_count);
                     workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter(function (f) { return f.id != Number(currentRunId); });
                     workFlowRunsMapped = workFlowRunsFiltered.map(function (x) { return ({
                         run_id: x.id,
@@ -81,7 +82,7 @@ function checkWorkflow(token, owner, repo, statusToCheck, currentRunId, runnerLa
                         })];
                 case 3:
                     listJobsForWorkflowRunResult = _c.sent();
-                    core.info("Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
+                    core.info("Check Workflow Run " + workFlowRun.run_id + " with name " + workFlowRun.name + ": Received status code: " + listJobsForWorkflowRunResult.status + ", number or results: " + listJobsForWorkflowRunResult.data.total_count);
                     for (_a = 0, _b = listJobsForWorkflowRunResult.data.jobs; _a < _b.length; _a++) {
                         job = _b[_a];
                         if (job.labels.includes(runnerLabel)) {

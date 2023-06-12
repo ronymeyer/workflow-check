@@ -10,14 +10,7 @@ import { createActionAuth } from "@octokit/auth-action";
 
 async function checkWorkflow(token: string, owner: string, repo: string, statusToCheck: components["parameters"]["workflow-run-status"], currentRunId: string, runnerLabel: string): Promise<boolean> {
   let foundRunningJob = false;
-  /*
-    const auth = createActionAuth();
-    const authentication = await auth();
-  
-    core.info(`Auth token type ${authentication.tokenType}, token ${authentication.token.length}, owner ${owner}, repo ${repo}`);
-  
-    const octokit = new Octokit({ auth: authentication.token });
-  */
+
   const octokit = new Octokit();
 
   const listWorkflowRunsForRepoResult = await octokit.request("GET /repos/{owner}/{repo}/actions/runs", {
@@ -26,6 +19,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
     status: statusToCheck
   });
   /*
+  // this call doesn't work, it looks like owner and repo don't get replaced in the URL
   octokit.actions.listWorkflowRunsForRepo()
   const listWorkflowRunsForRepoResult = await octokit.actions.listWorkflowRunsForRepo({
     owner: owner,
@@ -33,7 +27,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
     status: statusToCheck
   });
   */
-  core.info(`Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
+  core.info(`Check Runs: Received status code: ${listWorkflowRunsForRepoResult.status}, number or results: ${listWorkflowRunsForRepoResult.data.total_count}`);
 
   let workFlowRunsFiltered = listWorkflowRunsForRepoResult.data.workflow_runs.filter((f) => f.id != Number(currentRunId));
 
@@ -50,7 +44,7 @@ async function checkWorkflow(token: string, owner: string, repo: string, statusT
         run_id: workFlowRun.run_id
       });
 
-    core.info(`Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
+    core.info(`Check Workflow Run ${workFlowRun.run_id} with name ${workFlowRun.name}: Received status code: ${listJobsForWorkflowRunResult.status}, number or results: ${listJobsForWorkflowRunResult.data.total_count}`);
 
     for (const job of listJobsForWorkflowRunResult.data.jobs) {
       if (job.labels.includes(runnerLabel)) {
