@@ -1,6 +1,6 @@
 {
   "name": "workflow-check",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "A Github Action that validates other workflow statuses on given runner",
   "main": "dist/index.js",
   "scripts": {
