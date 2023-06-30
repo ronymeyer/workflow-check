@@ -1,4 +1,4 @@
-name: Workflow Check
+name: Workflow Checker
 description: Check if there are any other pending or in progress workflows for given runner lable
 branding:
   icon: check-circle
