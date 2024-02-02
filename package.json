@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@octokit/openapi-types": "^19.1.0",
-    "@types/node": "^20.11.13",
+    "@types/node": "^20.11.16",
     "@vercel/ncc": "^0",
     "prettier": "^3",
     "release-it": "*",
