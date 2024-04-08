@@ -28,7 +28,7 @@
     "@octokit/rest": "^20.1.0"
   },
   "devDependencies": {
-    "@octokit/openapi-types": "^21.2.0",
+    "@octokit/openapi-types": "^22.0.0",
     "@types/node": "^20.12.4",
     "@vercel/ncc": "^0",
     "prettier": "^3",
